@@ -1,2 +1,2 @@
 # AI
-Open source AI repo \(^-^)/ 
+Open source AI repo \\(^-^)/ 
