@@ -1,3 +1,5 @@
 **USABLE**
 
-This is a really simple and compacted perceptron code.
+Really compacted and simple perceptron code.
+
+Help coming soon...
