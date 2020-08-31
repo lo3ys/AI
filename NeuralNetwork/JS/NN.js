@@ -22,7 +22,7 @@ let tanh = new ActivationFunction(
 class NeuralNetwork {
   /*
    * if the first argument is a NeuralNetwork the constructor clones it
-   * USAGE: cloned_nn = new NeuralNetwork(to_clone_nn);
+   * USAGE: Cloned_NN = new NeuralNetwork(NN_ToClone);
    * 
    * in_nodes = input neurons (int)
    * hid_nodes = hidden layers of neurons [int,int,...]
