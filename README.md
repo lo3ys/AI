@@ -5,5 +5,3 @@ I'm updating it as often as i can, so some of these codes will not be finished. 
 
 Anyway i will update all READMEs so you can use these AIs as simply as you want ^-^
 
-loul
-
