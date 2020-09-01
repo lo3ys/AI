@@ -218,11 +218,8 @@ public class neural_network{
           JSONArray  mat2 = new JSONArray();
            for(int k = 0 ; k < memory[i].matrice[j].length; k++){
               
-              
               mat2.setFloat(k,memory[i].matrice[j][k]);
               //mat2.setFloat(k,i);
-
-          
            }
             
             mat1.setJSONArray(j,mat2);

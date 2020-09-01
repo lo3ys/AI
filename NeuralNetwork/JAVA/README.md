@@ -2,8 +2,9 @@
 
 Detailed Neural Network with a Matrix class for calculation.
 
+
 work on processing 
-work on a pure java version
+I work on a pure java version
 
 for using  contructor : 
 
@@ -19,6 +20,9 @@ make a prediction
 
 .train : input array, target
 train the network 
+
+can't work without matrix class
+
 
 
 
