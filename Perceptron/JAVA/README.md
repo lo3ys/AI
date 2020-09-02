@@ -9,7 +9,7 @@ values are float
 
 for using  contructor : 
 
-input number
+input numbers
 
 important variable :
 
