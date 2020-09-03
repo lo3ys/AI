@@ -38,18 +38,22 @@ class NeuralNetwork {
       console.log('in_nodes must be integer');
       return null;
     }
+
     if (!Array.isArray(hid_nodes)) {
       hid_nodes = [hid_nodes];
     }
+
     if (typeof out_nodes != 'number') {
       console.log('out_nodes must be integer');
       return null;
     }
+
     this.input_nodes = in_nodes;
     this.hidden_nodes = hid_nodes;
     this.output_nodes = out_nodes;
     let totalLayerNum = 1 + this.hidden_nodes.length
     let layers = [];
+
     for (let l of this.hidden_nodes) layers.push(l);
     layers.push(this.output_nodes);
     this.weights = [];
@@ -71,10 +75,11 @@ class NeuralNetwork {
       this.biases.push(new Matrix(layers[i], 1));
       this.biases[i].randomize();
     }
+
     this.setLearningRate();
     this.setActivationFunction();
-
-
+    this.mutateMin = 0.02;
+    this.mutateMax = 0.12;
   }
 
   guess(input_array) {
@@ -191,8 +196,8 @@ class NeuralNetwork {
     }
 
   }
-  static randomizer(x) {
-    return x + (Math.random() * (0.120 - 0.0200) + 0.0200)
+  randomizer(x) {
+    return x + (Math.random() * (this.mutateMax - this.mutateMin) + this.mutateMax)
   }
 }
 
