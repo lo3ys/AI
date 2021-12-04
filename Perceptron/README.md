@@ -1,0 +1,1 @@
+the Java_new_version folder will become the Java folder once the new version of the perceptron work properly

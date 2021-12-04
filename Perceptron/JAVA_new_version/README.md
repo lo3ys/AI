@@ -1,0 +1,1 @@
+**The Documentation isn't done yet i will only do it when the perceptron and the fully connected neural network is complete**
