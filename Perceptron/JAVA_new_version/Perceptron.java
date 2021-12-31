@@ -4,11 +4,7 @@ import java.util.Arrays;
 import java.util.IllegalFormatException;
 import java.util.function.Function;
 
-/*
-
-Perceptron Class : Made by PhysicDev (physic gamer)
-
- */
+import org.json.*;
 
 /** if the Matrix and functions are in a separated library
 import utilities.Matrix;
@@ -317,6 +313,6 @@ public class Perceptron {
 	
 	/** have to solve weird eclipse json error before implementing this
 	public void saveJson(File f) {
-		jsonArray dat = new jsonArray();
+		JSONArray dat = new JSONArray();
 	}**/
 }

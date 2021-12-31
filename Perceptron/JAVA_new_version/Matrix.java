@@ -1,13 +1,13 @@
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.Random;
 import java.util.function.Function;
-
-
 /*
 
 Matrix Class : Made by PhysicDev (physic gamer)
 
  */
-
 //matrix class for neural network
 public class Matrix {
 	
@@ -229,6 +229,21 @@ public class Matrix {
 		}
 	}
 	
+	public int[] max(){
+		int[] Max= {-1,-1};
+		float MaxValue=Float.MIN_VALUE;
+
+		for(int i=0;i<X;i++) {
+			for(int j=0;j<Y;j++) {
+				if(values[i][j]>MaxValue) {
+					Max=new int[]{i,j};
+					MaxValue=values[i][j];
+				}
+			}
+		}
+		return(Max);
+	}
+	
 	//extends a column matrix to a length long matrix
 	public Matrix extend(int length)throws ArithmeticException {
 		if(X!=1) {
@@ -248,6 +263,24 @@ public class Matrix {
 		for(int i=0;i<X; i++) {
 			for(int j=0;j<Y; j++) {
 				values[i][j]=(float)F.apply(values[i][j]);
+			}
+		}
+	}
+	
+	//write the matrix in file
+	public void writeInFile(DataOutputStream out) throws IOException {
+		for(int i=0;i<X; i++) {
+			for(int j=0;j<Y; j++) {
+				out.writeFloat(values[i][j]);
+			}
+		}
+	}
+
+	//load a matrix from file
+	public void loadFromFile(DataInputStream in) throws IOException {
+		for(int i=0;i<X; i++) {
+			for(int j=0;j<Y; j++) {
+				values[i][j]=in.readFloat();
 			}
 		}
 	}
