@@ -6,9 +6,6 @@ I will surely improve the library with time to make the network handle more comp
 
 Don't forget to download the [utilities](https://github.com/netscape-swega/AI/tree/master/Utilities/java) library with the NeuralNet library or the library will not work.
 
-I don't have fully tested it yet so it might not work.
-
-
 ***library made by physic Dev***
 
 
