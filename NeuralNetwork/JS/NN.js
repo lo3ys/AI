@@ -37,8 +37,7 @@ class NeuralNetwork {
 	 */
 	constructor(in_nodes, hid_nodes, out_nodes) {
 	if (typeof in_nodes != 'number') {
-		console.log('in_nodes must be integer');
-		return null;
+		throw new Error('in_nodes must be integer');
 	}
 
 	if (!Array.isArray(hid_nodes)) {
@@ -47,7 +46,7 @@ class NeuralNetwork {
 
 	if (typeof out_nodes != 'number') {
 		console.log('out_nodes must be integer');
-		return null;
+		throw new Error('out_nodes must be integer')
 	}
 
 	this.input_nodes = in_nodes;
