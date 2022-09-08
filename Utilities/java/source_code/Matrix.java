@@ -3,14 +3,17 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Random;
 import java.util.function.Function;
+
 /**
  * matrix class for neural network
  *
  * @author Physic Dev
- * @version 1.2
+ * @version 1.3
  */
 //
 public class Matrix {
+	
+	public static final String Version="1.3";
 	
 	//size of the matrix
 	private int X,Y;
@@ -412,6 +415,42 @@ public class Matrix {
 		}
 	}
 	
+	//more radiation = more mutation
+	public void mutate(float radiation,float start,float end) {
+		for(int i=0;i<X;i++) {
+			for(int j=0;j<Y;j++) {
+				if(Rand.nextFloat()<radiation) {
+					values[i][j] = Rand.nextFloat()*(end-start)+start;
+				}
+			}
+		}
+	}
+	
+	public void mutate(float radiation) {
+		for(int i=0;i<X;i++) {
+			for(int j=0;j<Y;j++) {
+				if(Rand.nextFloat()>0.5f) {
+					values[i][j] = Rand.nextFloat();
+				}
+			}
+		}
+	}
+	
+	public void crossover(Matrix m,float swapProb) throws ArithmeticException{
+		if(m.X!=X || m.Y!=Y) {
+			throw new ArithmeticException("matrix's size doesn't match");
+		}
+		boolean change=Rand.nextBoolean();
+		for(int i=0;i<X;i++) {
+			for(int j=0;j<Y;j++) {
+				if(Rand.nextFloat()<swapProb) {
+					change=!change;
+				}
+				if(change){values[i][j] = m.values[i][j];}
+			}
+		}
+	}
+	
 	/**
 	 * return the highest term of the matrix
 	 * 
@@ -421,7 +460,7 @@ public class Matrix {
 	 */
 	public int[] max(){
 		int[] Max= {-1,-1};
-		float MaxValue=Float.MIN_VALUE;
+		float MaxValue=-1*Float.MAX_VALUE;
 
 		for(int i=0;i<X;i++) {
 			for(int j=0;j<Y;j++) {
@@ -457,6 +496,28 @@ public class Matrix {
 	}
 	
 	/**
+	 * return the sum of all the values of the matrix, used for computing the softmax activation function
+	 * @return the sum of all value
+	 * @since 1.3
+	 */
+	public float sum() {
+		float sum = 0;
+		for(int i=0;i<X;i++) {
+			for(int j=0;j<Y;j++) {
+				sum+=values[i][j];
+			}
+		}
+		return sum;
+	}
+	
+	/**
+	 * normalize the matrix, make the sum of all matrix term to be 1 by keeping the term relative proportion;
+	 */
+	public void normalize() {
+		this.factor(1.0f/this.sum());
+	}
+	
+	/**
 	 * extends a column matrix to a length long matrix (not very usefull)
 	 * 
 	 * @param length the length of the new matrix
@@ -475,6 +536,41 @@ public class Matrix {
 			}
 		}
 		return(R);
+	}
+	/**
+	 * 
+	 * restrict all the values of the matrix between min and maxn.
+	 * 
+	 * @param min the minimum value
+	 * @param max the maximum value
+	 * @throws IllegalArgumentException if max is smaller than min
+	 * @since 1.2
+	 * @see #clamp(int)
+	 */
+	public void clamp(int min,int max) throws IllegalArgumentException {
+		if(max<min) {
+			throw new IllegalArgumentException("max value is smaller than min value");
+		}
+		for(int i=0;i<X; i++) {
+			for(int j=0;j<Y; j++) {
+				values[i][j]=Math.min(Math.max(min, values[i][j]), max);
+			}
+		}
+	}
+	/**
+	 * 
+	 * restrict all the values of the matrix between -absMax and absMax
+	 * 
+	 * @param absMax the maximal norm
+	 * @throws IllegalArgumentException if absMax is negative
+	 * @since 1.2
+	 * @see #clamp(int,int)
+	 */
+	public void clamp(int absMax) throws IllegalArgumentException {
+		if(absMax<0) {
+			throw new IllegalArgumentException("absMax value is negative");
+		}
+		clamp(-absMax,absMax);
 	}
 	
 	/**

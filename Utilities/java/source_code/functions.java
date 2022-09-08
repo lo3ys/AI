@@ -7,7 +7,7 @@ import java.util.function.Function;
  * (derivative's variable are the function itself and not the function input)
  * 
  * @author Physic Dev
- * @version 1.2
+ * @version 1.3
  */
 public enum functions implements Function<Float, Float>{
 	
@@ -62,7 +62,15 @@ public enum functions implements Function<Float, Float>{
 	 * @since 1.0
 	 */
 	AbsStep((x) -> x>0f?1f:0f,
-			(x) -> x>0?1f:-1f);
+			(x) -> x>0?1f:-1f),
+	
+	/**
+	 * used for the softmax function, 
+	 * the neural netowrk will do the rest of the work
+	 * @since 1.3
+	 */
+	softMax((x) -> (float)Math.exp(x),
+			(x) -> x*(1-x));
 
 	public final Function<Float, Float> Function;
 	public final Function<Float, Float> Derivative;

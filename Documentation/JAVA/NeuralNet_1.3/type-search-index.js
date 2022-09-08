@@ -1,0 +1,1 @@
+typeSearchIndex = [{"l":"All Classes","u":"allclasses-index.html"},{"p":"NeuralNet","l":"NeuralNetwork"},{"p":"NeuralNet","l":"NeuronNetwork"},{"p":"NeuralNet","l":"Perceptron"}];updateSearchResults();
