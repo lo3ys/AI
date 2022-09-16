@@ -70,6 +70,8 @@ create custom variable for the most common activation function so you can avoid 
 - implementation of a geneticAlgorithm
 - implementation of Convolutional Neural Network
 - implementation of recurent neuron
+</br>
+</br>
 
 you can get more info on these in the javadocs.
 (I update the javadoc only for big update so it may have some stuff in the code that is not documented yet)
