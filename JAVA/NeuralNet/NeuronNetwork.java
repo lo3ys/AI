@@ -1,3 +1,5 @@
+package NeuralNet;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
@@ -1002,7 +1004,7 @@ public class NeuronNetwork {
 		
 		fitness=fitness*tests+Fit*data.size();
 		tests+=data.size();
-		fitness/=tests;
+		fitness/=tests*tests;
 	}
 	
 	/**
@@ -1066,6 +1068,7 @@ public class NeuronNetwork {
 	 * @return the comparison value
 	 */
 	public float compare(NeuronNetwork NN) {
+		//get All Synapses for easier compute
 		ArrayList<Synapse> Synapses=new ArrayList<Synapse>();
 		for(ArrayList<Neuron> layer:Layers)
 			for(Neuron N:layer)
@@ -1090,11 +1093,14 @@ public class NeuronNetwork {
 					SynapseError++;
 				}
 		
-		SynapseError+=Synapses.size();	
-		SynapseError/=SynapseCommun;
-		WeightError/=SynapseCommun;
+		SynapseError=Math.max(this.Complexity(),NN.Complexity())-SynapseCommun;	
+		SynapseError/=Math.max(this.Complexity(),NN.Complexity());
+		if(SynapseCommun==0)
+			SynapseError*=(1+WeightFactor/StructureFactor);//to compensate the Weight error which is at 0 but not for the good reason
+		else
+			WeightError/=SynapseCommun;
 		
-		return 0f;
+		return SynapseError*StructureFactor+WeightError*WeightFactor;
 	}
 	
 	/**

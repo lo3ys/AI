@@ -1,15 +1,13 @@
+package NeuralNet;
+
 import java.util.Random;
 import java.io.*;
-import java.util.Arrays;
-import java.util.IllegalFormatException;
 import java.util.function.Function;
 
 import org.json.*;
 
-/** if the Matrix and functions are in a separated library
 import utilities.Matrix;
-import utilities.functions;**/
-
+import utilities.functions;
 /**
  * Perceptron class, simulate a single neuron,
  * 

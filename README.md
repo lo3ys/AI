@@ -4,5 +4,7 @@ We're updating it as often as we can, so some of these codes will not be finishe
 
 Anyway we will update all READMEs so you can use these AIs as simply as you want
 
+They project is sorted by programming language then by Netwrok type (when it's possible)
+
  **NETSCAPE SWΞG∆** did the JS networks
  **PhysicDev** did the Java networks

@@ -1,1 +1,0 @@
-**this folder contain library that are not neural network but tool that we use in neural network like a matrix class for example**
