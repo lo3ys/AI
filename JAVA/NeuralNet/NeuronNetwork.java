@@ -454,6 +454,11 @@ public class NeuronNetwork {
 		return totalSynapses;
 	}
 	
+	public NeuronNetwork() throws IllegalArgumentException{
+
+		setActivation(functions.Sigmoid);//default activation function
+	}
+	
 	/**
 	 * Create a New Neuron network based on a fully connected network Structure.
 	 * 
@@ -594,9 +599,9 @@ public class NeuronNetwork {
 	public void addNode(int Type,int Layer) throws IllegalArgumentException{
 		if(Layer<0)
 			throw new IllegalArgumentException("Layer must be positive");
-		if(Type == Input && Layer != 1)
+		if(Type == Input && Layer != 0)
 			throw new IllegalArgumentException("Inputs must be on layer 0");
-		if(Type == Input && Layer != Layers.size())
+		if(Type == Output && Layer != Layers.size()-1)
 			throw new IllegalArgumentException("Output must be on last layer");
 		if(Type == Input)
 			inputLength++;
@@ -663,29 +668,44 @@ public class NeuronNetwork {
 	 * 
 	 * @param Id1 Id of parent Neuron
 	 * @param Id2 Id of children Neuron
+	 * @param Weight the Synapse Weight
 	 * @throws NullPointerException if the Neuron does not exist in the current Network
 	 * 
 	 * @see #addConnection(Neuron,Neuron)
-	 * @since 1.0
+	 * @since 1.1
 	 */
-	public void addConnection(int Id1,int Id2)throws NullPointerException {
+	public void addConnection(int Id1,int Id2,float Weight)throws NullPointerException {
 		Neuron N1=null,N2=null;
 		for(ArrayList<Neuron> layer:Layers)
 			for(Neuron N:layer) {
-				System.out.println(N.Id+" "+Id2+" "+(Id2==N.Id));
 				if(Id1==N.Id)
 					N1=N;
 				if(Id2==N.Id)
 					N2=N;
 				if(N1!=null && N2!=null) {
-					addConnection(N1,N2);
+					addConnection(N1,N2,Weight);
 					return;
 				}
 			}
 		if(N1==null || N2==null)
 			throw new NullPointerException("there are no neuron with this Id");
 	}
-	
+
+	/**
+	 * 
+	 * create a connection between two neuron  
+	 * 
+	 * @param Id1 Id of parent Neuron
+	 * @param Id2 Id of children Neuron
+	 * @throws NullPointerException if the Neuron does not exist in the current Network
+	 * 
+	 * @see #addConnection(Neuron,Neuron)
+	 * @since 1.0
+	 */
+	public void addConnection(int Id1,int Id2){
+		addConnection(Id1,Id2,R.nextFloat()*weightDistrib-(weightDistrib/2));
+	}
+
 	/**
 	 * 
 	 * create a connection between two neuron 
@@ -698,7 +718,24 @@ public class NeuronNetwork {
 	 * @see #addConnection(int, int)
 	 * @since 1.0
 	 */
-	public void addConnection(Neuron Parent,Neuron Children)throws IllegalArgumentException,NullPointerException{
+	public void addConnection(Neuron Parent,Neuron Children) {
+		addConnection(Parent,Children,R.nextFloat()*weightDistrib-(weightDistrib/2));
+	}
+	
+	/**
+	 * 
+	 * create a connection between two neuron 
+	 * 
+	 * @param Parent the Parent Neuron
+	 * @param Children the Children Neuron
+	 * @param Weight the Synapse Weight
+	 * @throws IllegalArgumentException if the connection already exist or if the neurons are equal
+	 * @throws NullPointerException if the Neuron does not exist
+	 * 
+	 * @see #addConnection(int, int)
+	 * @since 1.1
+	 */
+	public void addConnection(Neuron Parent,Neuron Children,float Weight)throws IllegalArgumentException,NullPointerException{
 		
 		if(Parent==Children)
 			throw new IllegalArgumentException("A Neuron cannot be conncted to itself");
@@ -724,6 +761,7 @@ public class NeuronNetwork {
 		
 		totalSynapses++;
 		Synapse S = new Synapse(Parent,Children);
+		S.weight=Weight;
 		Parent.BackSynapses.add(S);
 		Children.Synapses.add(S);
 	}
@@ -1132,5 +1170,52 @@ public class NeuronNetwork {
 			i++;
 		}
 		return(output+data);
+	}
+	
+	/**
+	 * return an Independent copy of the network
+	 * this method call the normalize function to avoid error
+	 * @return
+	 */
+	public NeuronNetwork clone() {
+		NeuronNetwork output = new NeuronNetwork();
+		int i=0;
+		for(ArrayList<Neuron> L:Layers) {
+			output.Layers.add(new ArrayList<Neuron>());
+			for(Neuron N:L) {
+				System.out.println("data  : "+N.type+" "+i+" "+output.Layers.size());
+				output.addNode(N.type, i);
+				output.Layers.get(i).get(output.Layers.get(i).size()-1).Id=N.Id;
+				for(Synapse S:N.Synapses)
+					output.addConnection(S.parent.Id,S.children.Id,S.weight);
+			}
+			i++;
+		}
+		return output;
+	}
+	
+	/**
+	 * create a copy of the network and take randomly the weight of the second network if the synapse are the same
+	 * @return
+	 */
+	public NeuronNetwork merge(NeuronNetwork NN) {
+		NeuronNetwork output = clone();//get All Synapses for easier compute
+		
+		ArrayList<Synapse> Synapses=new ArrayList<Synapse>();
+		for(ArrayList<Neuron> layer:output.Layers)
+			for(Neuron N:layer)
+				for(Synapse S:N.Synapses) {
+					Synapses.add(S);
+				}
+		for(ArrayList<Neuron> layer:NN.Layers)
+			for(Neuron N:layer)
+				loop : for(Synapse S:N.Synapses) {
+					for(int i=0;i<Synapses.size();i++)
+						if(Synapses.get(i).equals(S) && R.nextBoolean()) {
+							Synapses.get(i).weight=S.weight;
+							continue loop;
+						}
+				}
+		return output;
 	}
 }
