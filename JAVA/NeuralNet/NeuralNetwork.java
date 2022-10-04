@@ -55,6 +55,7 @@ public class NeuralNetwork {
     return(hiddenLength[x]);
   }
   
+  
   protected int[] structure;
   /**
    * return the number of neurones of the corresponding layer
