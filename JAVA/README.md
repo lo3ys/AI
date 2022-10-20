@@ -22,31 +22,27 @@ Don't forget to download the [utilities](https://github.com/netscape-swega/AI/tr
 
 the library jar file was moved [here](https://github.com/netscape-swega/AI/tree/master/library/java).
 
-<h2>NeuronNetwork : <span style="color:#d6ca5b">ALPHA [1.0]</span></h2>
-<h4>this is the <b>free connected neural network</b> class <b>|VERSION :1.0|</b>.</h4>
+<h2>NeuronNetwork : <span style="color:#6d96ee">BETA [1.1]</span></h2>
+<h4>this is the <b>free connected neural network</b> class <b>|VERSION :1.1|</b>.</h4>
 
-I will try to add genetic algorithm soon for this network.
+this network is suposed to be used with the genetic algorithm neural network
 
-I did not test it (except for very simple tests as XOR)
-so it may have some issue.
+I did a few test on it (but it might still have some bugs)
 
-also do not try to connect neuron to higher layer neuron, it will surely mess up the network.
-
-I didn't do error check everywhere (because it's a pain to do).
-so you cany do some stuff that the network cannot handle.
+I did do error check everywhere (and it's a pain to do).
+but be carefull when you're working directly with the structure, you can end up with a broken network
 
 also the new SoftMax activation function that i add to the Utilities Library did not work for this networks.
 
-Don't forget to download the [utilities](https://github.com/netscape-swega/AI/tree/master/library/java) library with the NeuralNet library or the library will not work.
+the structure of the network is inspired by this [algorithm](https://fr.wikipedia.org/wiki/Algorithme_NEAT).
 
-the structure of the network is inspired by this [video](https://www.youtube.com/watch?v=NmCtSidJ7aY).
-
-<h2>GeneticAlgorithm : <span style="color:#d67f5b">NOT USABLE [/]</span></h2>
+<h2>GeneticAlgorithm : <span style="color:#d6ca5b">ALPHA[1.1]</span></h2>
 
 this class is supposed to be used with NeuronNetwork to optimize their structure
 
-still in development for now
+did not a lot of testing no might be broken but for fine for the teest i've done.
 
+the class is more messy than the other because the algorithm is quite complex
 
 
 <h1>Utilities library</h1>
@@ -78,7 +74,7 @@ you can get more info on these in the javadocs.
 
 ***library made by physic Dev***
 
-<!--6d96ee-->
+<!-- 6d96ee d6ca5b d67f5b-->
 
 
 

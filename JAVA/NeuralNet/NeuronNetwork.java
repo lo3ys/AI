@@ -1,4 +1,4 @@
-package NeuralNet;
+package neuralnet;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,10 +13,11 @@ import utilities.functions;
  * this is inspired by the Neat AI algorithm
  * 
  * 
- * @see {@link NeuralNet.NeuralNetwork}
- * @author physicGamer
+ * @see {@link neuralnet.NeuralNetwork}
+ * @see {@link neuralnet.GeneticAlgorithm}
+ * @author PhysicDev
  * 
- * @version 1.0
+ * @version 1.1
  *
  */
 public class NeuronNetwork {
@@ -30,6 +31,31 @@ public class NeuronNetwork {
 	private static final int MaxNeurons = 100000;
 	private static final float StructureFactor = 1f;
 	private static final float WeightFactor = 1f;
+	
+	//for creation of new neurons
+	private int nextId = 0;
+	
+	//random variable for generating random weight and other stuff that need to be random
+	private Random R = new Random();
+	
+	//activation function
+	private Function<Float, Float> activation;
+	private Function<Float, Float> outputActivation;
+	private Function<Float, Float> derivative;
+	private Function<Float, Float> outputDerivative;
+	
+	//disabled neuron which isn't take in account for computation
+	private ArrayList<Synapse> disabledSyn = new ArrayList<Synapse>();
+	
+	//performance variable
+	private float fitness;
+	private int tests=0;
+	
+	//info on the neural network structure
+	private int inputLength;
+	private int outputLength;
+	private int totalNeurons;
+	private int totalSynapses;
 	/**
 	 * this variable is used for the weight randomization, larger value mean mor espread out value
 	 * @since 1.0
@@ -43,8 +69,6 @@ public class NeuronNetwork {
 	 */
 	public float learningRate = 0.05f;
 	
-	private Random R = new Random();
-	
 	/**
 	 * if you want to control the randomness of the network (for the weight randomization for example)
 	 * @param rand the random value
@@ -53,8 +77,6 @@ public class NeuronNetwork {
 	public void SetRandom(Random rand) {
 		R=rand;
 	}
-	
-	private int nextId = 0;
 	
 	/**
 	 * 
@@ -157,10 +179,13 @@ public class NeuronNetwork {
 		 */
 		public void updateDelta() {
 			delta=0;
-			for(Synapse S:BackSynapses)
+			for(Synapse S:BackSynapses) {
+				if(!S.enabled)
+					continue;//skip disabled synapses
 				delta+=S.weight
 				      *((S.children.type==Output)?outputDerivative.apply(S.children.value):derivative.apply(S.children.value))
 					  *S.children.delta;
+			}
 		}
 		
 		/**
@@ -282,14 +307,6 @@ public class NeuronNetwork {
 		}
 	}
 	
-	private Function<Float, Float> activation;
-	private Function<Float, Float> outputActivation;
-
-	private Function<Float, Float> derivative;
-	private Function<Float, Float> outputDerivative;
-
-
-
 	/**
 	   * define the activation function used by the neural network
 	   * 
@@ -379,26 +396,7 @@ public class NeuronNetwork {
 	  * it's public only to make computation easier
 	  */
 	public ArrayList<ArrayList<Neuron>> Layers = new ArrayList<ArrayList<Neuron>>();
-	
 
-	private ArrayList<Synapse> disabledSyn = new ArrayList<Synapse>();
-	
-	private int Id;
-	/**
-	 * the Id is useful in genetic algorithm, so for now it's useless
-	 * 
-	 * @return the NeuronNetwork Id
-	 * @since 1.0
-	 */
-	public int getID() {
-		return Id;
-	}
-	
-	public void setId(int id) {
-		Id=id;
-	}
-
-	private float fitness;
 	/**
 	 * the fitness indicate how well the neuron is working
 	 * used in genetic algorithm but can also be used to track the learning of the neural netowrk
@@ -411,7 +409,6 @@ public class NeuronNetwork {
 	public float getFitness() {
 		return fitness;
 	}
-	private int tests=0;
 	/**
 	 * reset the fitness value, useful to get rid of old test to see the current state of the network
 	 * @since 1.0
@@ -421,7 +418,6 @@ public class NeuronNetwork {
 		tests=0;
 	}
 	
-	private int inputLength;
 	/**
 	 * return the number of input of the neural network
 	 * @return the number of input
@@ -431,7 +427,6 @@ public class NeuronNetwork {
 	  return(inputLength);
 	}
 	  
-	private int outputLength;
 	/**
 	 * return the number of output of the neural network
 	 * @return the number of output
@@ -441,7 +436,6 @@ public class NeuronNetwork {
 	  return(outputLength);
 	}
 	
-	private int totalNeurons;
 	/**
 	 * 
 	 * @return the total number of Neurons
@@ -451,7 +445,6 @@ public class NeuronNetwork {
 		return(totalNeurons);
 	}
 	
-	private int totalSynapses;
 	/**
 	 * @return the total number of Synapses
 	 * @since 1.0
@@ -460,8 +453,31 @@ public class NeuronNetwork {
 		return totalSynapses;
 	}
 	
+	
+	/**
+	 * check if the network contain at least one neuron
+	 * @return True if the network is empty
+	 */
+	public boolean isEmpty() {
+		return totalNeurons==0;
+	}
+	
+	/**
+	 * check if the neuron network has at least one connection
+	 * this is different from the method is empty because a network with input and output is not empty but can be simple.
+	 * @return true if the neuron has 0 synapses
+	 * @since 1.1
+	 */
+	public boolean isSimple() {
+		return totalSynapses==0;
+	}
+	
+	/**
+	 * build an empty neural Network
+	 * @throws IllegalArgumentException
+	 * @since 1.1
+	 */
 	public NeuronNetwork() throws IllegalArgumentException{
-
 		setActivation(functions.Sigmoid);//default activation function
 	}
 	
@@ -594,18 +610,7 @@ public class NeuronNetwork {
 		this(In,Hid,Out,1f);
 	}
 
-
-	/**
-	 * add a neuron in the network
-	 * @param Type the type of the neuron
-	 * @param Layer the layer of the Neuron
-	 * @throws IllegalArgumentException if the layer have incorrect value or if input or output neuron are placed in the wrong layer
-	 * 
-	 * @return the new Neuron Id
-	 * 
-	 * @see Neuron#Neuron(int, int)
-	 * @since 1.0
-	 */
+	//like the function addNode except it return the created neuron, useful for some intern method (and this is why it is private)
 	private Neuron addNode_(int Type,int Layer) throws IllegalArgumentException{
 		if(Layer<0)
 			throw new IllegalArgumentException("Layer must be positive");
@@ -847,6 +852,9 @@ public class NeuronNetwork {
 		
 		if(Parent.layer>Children.layer)
 			throw new IllegalArgumentException("cannot link a neuron from a higher layer to a lower layer");
+
+		//maybe add some stuff to manage extending layers size to create new neuron
+		//also note that you're not supposed to build your network by hand but with a genetic algorithm
 		
 		totalSynapses++;
 		Synapse S = new Synapse(Parent,Children);
@@ -890,6 +898,10 @@ public class NeuronNetwork {
 	 * remove the connection between two Neuron
 	 * @param Parent the parent Neuron
 	 * @param Children the Children Neuron
+	 * 
+	 * @see #removeConnection(int, int)
+	 * @see #removeConnection(int[], int[])
+	 * 
 	 * @since 1.0
 	 */
 	public void removeConnection(Neuron Parent,Neuron Children){
@@ -913,13 +925,79 @@ public class NeuronNetwork {
 		totalSynapses--;
 	}
 	
+	/**
+	 * 
+	 * remove a connection between two neuron  
+	 * 
+	 * @param Id1 Id of parent Neuron
+	 * @param Id2 Id of children Neuron
+	 * @throws NullPointerException if the Neuron does not exist in the current Network
+	 * 
+	 * @see #addConnection(Neuron,Neuron)
+	 * @see #removeConnection(Neuron, Neuron)
+	 * @see #removeConnection(int[], int[])
+	 * @since 1.1
+	 */
+	public void removeConnection(int ParentId,int ChildrenId) {
+		Neuron N1=null,N2=null;
+		for(ArrayList<Neuron> layer:Layers)
+			for(Neuron N:layer) {
+				if(ParentId==N.Id)
+					N1=N;
+				if(ChildrenId==N.Id)
+					N2=N;
+				if(N1!=null && N2!=null) {
+					removeConnection(N1,N2);
+					return;
+				}
+			}
+		if(N1==null || N2==null)
+			throw new NullPointerException("there are no neuron with this Id "+N1+" "+N2);
+	}
+
+	/**
+	 * 
+	 * remove a connection between two neuron  
+	 * 
+	 * @param parentCoord the parent coordinate in the network
+	 * @param childrenCoord the children coordinate in the network
+	 * 
+	 * @throws NullPointerException if one of the Neuron does not exist
+	 * 
+	 * @see #addConnection(Neuron,Neuron)
+	 * @see #removeConnection(Neuron, Neuron)
+	 * @see #removeConnection(int, int)
+	 * @since 1.1
+	 */
+	public void removeConnection(int[] parentCoord, int[] childrenCoord) {
+		if(parentCoord[0]>Layers.size() || childrenCoord[0]>Layers.size())
+			throw new NullPointerException("Coord out of range");
+		if(parentCoord[1]>Layers.get(parentCoord[0]).size() || childrenCoord[1]>Layers.get(childrenCoord[0]).size())
+			throw new NullPointerException("Coord out of range");
+		
+		totalSynapses++;
+		removeConnection(Layers.get(parentCoord[0]).get(parentCoord[1]),Layers.get(childrenCoord[0]).get(childrenCoord[1]));
+	}
+
+	/**
+	 * disable the Synapse S
+	 * @param S the Synapse to disable
+	 * @since 1.1
+	 * @see #enableConnection(Synapse)
+	 */
 	public void disableConnection(Synapse S) {
 		if(S.enabled) {
 			S.enabled=false;
 			disabledSyn.add(S);
 		}
 	}
-	
+
+	/**
+	 * enable the Synapse S
+	 * @param S the Synapse to enable
+	 * @since 1.1
+	 * @see #disableConnection(Synapse)
+	 */
 	public void enableConnection(Synapse S) {
 		if(!S.enabled) {
 			S.enabled=true;
@@ -927,21 +1005,44 @@ public class NeuronNetwork {
 		}
 	}
 	
-	//note : ajouter les fonctions removeConnection(int,int) et removeConnection(int[],int[])	
 	
+
 	/**
-	 * for Genetic Algorithm,
+	 * do some random little modification to the neural network to get random new behavior without losing the old ones.
+	 * 
+	 * this method will call mutateWeight, mutateNode and mutateConnection
+	 * with the following parameter : 
+	 * <ul>
+	 * <li><b>Weights</b> : 0.8 0.1 WeightDistrib*0.2</li>
+	 * <li><b>Connections</b> : 0.05 0.05 0.25 20</li>
+	 * <li><b>Nodes</b> : 0.1 0.1</li>
+	 * </ul>
 	 * 
 	 * @since 1.0
+	 * 
+	 * @see #mutateWeight(float, float, float)
+	 * @see #mutateConnection(float, float, float, int)
+	 * @see #mutateNode(float, float)
 	 */
 	public void mutate(){
 		mutateWeight(0.8f,0.1f,weightDistrib*0.2f);	
 		mutateConnection(0.05f,0.05f,0.25f,20);
 		mutateNode(0.1f,0.1f);
-		
 	}
 	
-	public void mutateNode(float probNew,float probMerge) {
+	/**
+	 * mutate the network by adding a node in a synapse (the new neuron become the children of the inner neuron and the parent of the outetr neuron)
+	 * or by removing a random neuron.
+	 * <br>
+	 * note that bias, output and input neuron cannot be removed or created.
+	 * @param probNew probability of new neuron
+	 * @param probMerge probability of removing a neuron
+	 * @since 1.1
+	 * @see #mutate()
+	 */
+	public void mutateNode(float probNew,float probMerge) throws IllegalArgumentException{
+		if(probNew<0 || probNew>1)throw new IllegalArgumentException("probability(probNew) must be between 0 and 1");
+		if(probMerge<0 || probMerge>1)throw new IllegalArgumentException("probability(probMerge) must be between 0 and 1");
 		if(R.nextFloat()<probNew && totalSynapses!=0) {
 			//take a random Synapse
 			int Syn = R.nextInt(totalSynapses);
@@ -974,7 +1075,7 @@ public class NeuronNetwork {
 			Neuron newNeuron = addNode_(Hidden,S.parent.layer+1);
 			addConnection(S.parent,newNeuron,S.weight);
 			addConnection(newNeuron,S.children);
-			fixLayer();
+			fixLayer();//to fix issue like having hidden in output layer or vice versa
 		}
 		
 
@@ -991,12 +1092,11 @@ public class NeuronNetwork {
 				}
 			}
 			removeNode(N.Id);
-			
 		}
 	}
 	
 	private void correctLayer(Neuron N,int newLayer) {
-		if(N.type==Output && Layers.size()-1>newLayer) {//ignore new layer and put it at the last position
+		if(N.type==Output && Layers.size()-1>newLayer) {//ignore new layer and put it at the higher existing layer
 			Layers.get(N.layer).remove(N);
 			N.layer=Layers.size()-1;
 			Layers.get(Layers.size()-1).add(N);
@@ -1006,18 +1106,19 @@ public class NeuronNetwork {
 			Layers.add(new ArrayList<Neuron>());
 		Layers.get(N.layer).remove(N);
 		N.layer=newLayer;
-		Layers.get(newLayer).add(N);
+		Layers.get(newLayer).add(N);//updateLayer
 		for(Synapse S:N.BackSynapses)
 			if(S.children.layer<=newLayer)
-				correctLayer(S.children);
+				correctLayer(S.children);//correct chidren layer
 	}
 	
 	private void correctLayer(Neuron N) {
-		int newLayer=N.layer;
+		int newLayer=N.layer;//check if all parent neuron are in lower layer, if not update the layer
 		for(Synapse S:N.Synapses)
 			if(S.parent.layer>=newLayer)
 				newLayer=S.parent.layer+1;
-		correctLayer(N,newLayer);
+		if(newLayer!=N.layer)//correct layer only if its needed
+			correctLayer(N,newLayer);
 	}
 	
 	
@@ -1052,6 +1153,7 @@ public class NeuronNetwork {
 		
 	}
 	
+	//take a random neuron in the network
 	private Neuron randomNeuron() {
 		int pos= R.nextInt(totalNeurons);
 		for(ArrayList<Neuron> layer:Layers) {
@@ -1066,6 +1168,7 @@ public class NeuronNetwork {
 		return null;
 	}
 	
+	//take a random hidden neuron in the network
 	private Neuron randomHidden() {
 		int pos= ((totalNeurons-inputLength-outputLength-1==1)?0:R.nextInt(totalNeurons-inputLength-outputLength-2))+inputLength+2;
 		for(ArrayList<Neuron> layer:Layers) {
@@ -1080,7 +1183,18 @@ public class NeuronNetwork {
 		return null;
 	}
 
-	public void mutateConnection(float probNew,float probDel,float probAct,int attempt) {
+	/**
+	 * will try to add, remove, or activate connection
+	 * @param probNew probability of new connection
+	 * @param probDel probability of removing connection
+	 * @param probAct probability of activating a connection
+	 * @param attempt how many time it will try to create a connection
+	 */
+	public void mutateConnection(float probNew,float probDel,float probAct,int attempt) throws IllegalArgumentException{
+		if(probNew<0 || probNew>1)throw new IllegalArgumentException("probability(probNew) must be between 0 and 1");
+		if(probDel<0 || probDel>1)throw new IllegalArgumentException("probability(probDel) must be between 0 and 1");
+		if(probAct<0 || probAct>1)throw new IllegalArgumentException("probability(probAct) must be between 0 and 1");
+		if(attempt<0)throw new IllegalArgumentException("attempt must be positive");
 		if(R.nextFloat()<probNew) {
 			for(int i=0;i<attempt;i++){
 				try {
@@ -1107,8 +1221,19 @@ public class NeuronNetwork {
 		if(!disabledSyn.isEmpty() && R.nextFloat()<probAct)//maybe activate neuron
 			enableConnection(disabledSyn.get(R.nextInt(disabledSyn.size())));
 	}
-	
-	public void mutateWeight(float prob,float resetProb,float amount) {
+	/**
+	 * 
+	 * mutate weight, take some weight and change a little bit the value of the neuron.
+	 * it can also reset a connection (take a random value for its weights.
+	 * 
+	 * @param prob probability of changing a weight value
+	 * @param resetProb probability that the change will reset the value (the probability of a connection reset is prob*resetProb)
+	 * @param amount how much is weight changed.
+	 */
+	public void mutateWeight(float prob,float resetProb,float amount) throws IllegalArgumentException{
+		if(prob<0 || prob>1)throw new IllegalArgumentException("probability(probDel) must be between 0 and 1");
+		if(resetProb<0 || resetProb>1)throw new IllegalArgumentException("probability(probAct) must be between 0 and 1");
+		if(amount<0)throw new IllegalArgumentException("attempt must be positive");
 		for(ArrayList<Neuron> Layer:Layers)
 			for(Neuron N:Layer)
 				for(Synapse S:N.Synapses)
@@ -1271,7 +1396,7 @@ public class NeuronNetwork {
 			if(N.type==Output){
 				//System.out.println(-N.value+target[i]+" "+Arrays.toString(data)+" "+target[i]);
 				N.delta=-N.value+target[i];
-				i--;
+				i++;
 			}
 		
 		//backPropagating !
@@ -1340,9 +1465,9 @@ public class NeuronNetwork {
 	}
 	
 	/**
-	 * delete useless neuron and reset Neurons and Synapses Id to use unused Id
+	 * delete useless neuron and collapse the network in it minimal structure (by taking the minimum amount of layer)
 	 *
-	 * useful to avoid big value in the Compare function when the Neuron network are similar 
+	 * useful to compare two similar network that were build differently.
 	 * @since 1.0
 	 */
 	public void normalizeNetwork() {
@@ -1364,7 +1489,7 @@ public class NeuronNetwork {
 		ArrayList<Neuron> tempNeuron = new ArrayList<Neuron>();
 		for(ArrayList<Neuron> layer:Layers)
 			for(Neuron N:layer) {
-				N.layer=Integer.MAX_VALUE;
+				N.layer=Integer.MAX_VALUE;//useful later
 				tempNeuron.add(N);
 			}
 		
@@ -1396,7 +1521,7 @@ public class NeuronNetwork {
 				}
 				tempNeuron.get(i).layer=l;
 				newLayer.get(l).add(tempNeuron.remove(i));
-				i--;
+				i--;//pour compensser le remove
 			}
 			l++;
 		}
@@ -1405,20 +1530,23 @@ public class NeuronNetwork {
 		for(Neuron N:Outputs)
 			N.layer=l;
 		newLayer.add(Outputs);
-		Layers=newLayer;
-		
-		/** /remove empty layer
-		for(int i=0;i<Layers.size();i++)
-			if(Layers.get(i).isEmpty()) { //USELESS NOW
-				Layers.remove(i);i--;
-			}**/
+		Layers=newLayer; //good
+	
+	}
+	
+	/**
+	 * Reassign Neuron and Synapse Id
+	 * using this method with the normalize method make two network with the same topology almost exactly equal
+	 * 
+	 * @since 1.1
+	 */
+	public void reasignId() {
 		
 		// not sure keeping that is good for the code
 		totalSynapses = 0; //to recompute the Synapse number
 		//reasign Neurons Id;
 		boolean FirstBias=true;
 		int currentId=1; //we skip Id 0 because it's the first Bias Id
-		l=0;
 		for(ArrayList<Neuron> layer:Layers) {
 			for(Neuron N:layer)
 				if(N.type==Bias && FirstBias) {
@@ -1427,9 +1555,7 @@ public class NeuronNetwork {
 				else {
 					totalSynapses+=N.Synapses.size();
 					N.Id=currentId;currentId++;
-					N.layer=l;//if we has removed some layer
 				}
-			l++;
 		}
 		nextId=currentId;
 		

@@ -1,4 +1,4 @@
-package NeuralNet;
+package neuralnet;
 
 import java.util.Random;
 import java.io.*;

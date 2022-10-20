@@ -1,42 +1,87 @@
-package NeuralNet;
+package neuralnet;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
 
-import NeuralNet.NeuralNetwork;
+import neuralnet.NeuralNetwork;
 /**
- * genetic algorithm inspired by neat AI video
- * @author utilisateur
+ * Genetic algorithm that adapt a network structure to solve a problem.
+ * genetic algorithm inspired by neat AI algorithm
+ * @author PhysicDev
+ * @see {@link neuralnet.NeuronNetwork}
+ * @version 1.1
  *
  */
 public class GeneticAlgorithm {
 	
-	public static final int ImprovementLimit = 20;
 	
+	//data
 	private int gen=0;
+	private int pop;
+	
+	//random variable for random generation
+	private Random R = new Random();
+	
+	//Structure data and info
+	//initial Structure for new NeuralNetwork
+	private int[] initialStructure;
+	private float initialIntegrity;
+	private int input;
+	private int output;
+
+	//fitness data
+	private float fitness=0;
+	private float bestFitness=-Float.MAX_VALUE;
+	private float adjustedFitness=0;//rework fitness to avoid one species to crush the other
+	private NeuronNetwork Best=null;
+	
+	//network data
+	private ArrayList<NeuronNetwork> population = new ArrayList<NeuronNetwork>();//All the population
+	private ArrayList<Species> SpeciesArray = new ArrayList<Species>();//the same network as above but distributed in species
+
+	/**
+	 * return the actual generation.
+	 * @return the actual generation
+	 * @since 1.1
+	 */
 	public int getGen() {
 		return gen;
 	}
 	
-	private int pop;
+	/**
+	 * return the amount of network per generation
+	 * @return the amount of network per generation
+	 * @since 1.1
+	 */
 	public int getPop() {
 		return pop;
 	}
 	
-	private Random R = new Random();
+	/**
+	 * use this method to set a custom random variable to the genetic algorithm,
+	 * this variable control everything that is randomly generated in the network.
+	 * @param r the random variable
+	 * @since 1.1
+	 */
 	public void setRandom(Random r) {
 		R=r;
 	}
 	
-	//initial Structure for new NeuralNetwork
-	private int[] initialStructure;
-	private float initialIntegrity;
-	
-	private float fitness=0;
+	/**
+	 * return the average fitness of the whole population
+	 * @return the average fitness
+	 * @since 1.1
+	 */
 	public float getFitness() {
 		return fitness;
 	}
+	
+	/**
+	 * return the fitness of every network in the population in a float array[]
+	 * @return the fitness of every network
+	 * @since 1.1
+	 */
 	public float[]getFitnessArray(){
 		float[] output = new float[population.size()];
 		for(int i=0;i<population.size();i++) {
@@ -45,33 +90,128 @@ public class GeneticAlgorithm {
 		return output;
 	}
 	
-	private float bestFitness=-Float.MAX_VALUE;
+	/**
+	 * return the fitness of the best network in the actual population</br> i.e. max({@link #getFitnessArray()})
+	 * @return the fitness of the best network
+	 * @since 1.1
+	 */
 	public float getBestFitness() {
 		return bestFitness;		
 	}
 	
-	private NeuronNetwork Best=null;
+	/**
+	 * return a copy of the best network in the actual population
+	 * @return the best network of this generation
+	 * @since 1.1
+	 */
 	public NeuronNetwork getBest() {
 		return Best.clone();
 	}
 	
-	private float adjustedFitness=0;
+	/**
+	 * return the average adjusted fitness of the whole population.</br>
+	 * the adjusted fitness is the fitness divide by the amount of network in the network's species.
+	 * this fitness is used to prevent a species to crush the other.
+	 * @return the average adjusted fitness
+	 * @since 1.1
+	 */
 	public float getAdjustedFitness() {
 		return adjustedFitness;
 	}
 	
-	public int speciesTarget=4;
+	/**
+	 * the wanted amount of species
+	 */
+	private int speciesTarget=4;
+	
+	/**
+	 * the wanted amount of species is not always the amount of species that we get by generation but the threshold value
+	 * is change every generation to get closer to that amount of species.
+	 * @return
+	 */
+	public int getSpeciesTarget() {
+		return speciesTarget;
+	}
+	
+	/**
+	 * to change the wanted amount of species
+	 * @param SpeciesTarget the wanted amount of species 
+	 * @throws IllegalArgumentException if SpceciesTarget is negative or null
+	 */
+	public void setSpeciesTarget(int SpeciesTarget) throws IllegalArgumentException {
+		if(speciesTarget<1)
+			throw new IllegalArgumentException("SpceisTarget must be a positive not null value");
+		speciesTarget=SpeciesTarget;
+	}
+
+			/**
+			 * the maximum number of generation a species can live without progressing
+			 */
+	
+	private int ImprovementLimit = 20;
+
+	/**
+	 * the maximum number of generation a species can live without progressing
+	 * if a species doesn't do any progress within this amount of generation.
+	 * it's deleted and replace with new network.
+	 * @return the improvement limit
+	 */
+	public int getImprovementLimit() {
+		return ImprovementLimit;
+	}
+	
+	/**
+	 * to change the maximum number of generation a species can live without progressing
+	 * @param IL the maximum number of generation a species can live without progressing
+	 * @throws IllegalArgumentException if IL is negative or null
+	 */
+	public void setImprovementLimit(int IL) throws IllegalArgumentException {
+		if(ImprovementLimit<1)
+			throw new IllegalArgumentException("IL must be a positive not null value");
+		ImprovementLimit=IL;
+	}
+	
+	/**
+	 * threshold value indicate how similar two network must be to be in the same species
+	 * @since
+	 */
 	public float threshold=0.5f;
 	
+	/**
+	 * 
+	 * @author PhysicDev
+	 *
+	 */
 	private class Species extends ArrayList<NeuronNetwork>{
-		
+		/**
+		 * average fitness of the species
+		 */
 		public float fitness=0;
+		/**
+		 * average adjusted fitness of the species
+		 */
 		public float adjustedFitness=0;
+		/**
+		 * total Fitness (not very useful outside of the class)
+		 */
 		public float totalFitness=0;
+		
+		/**
+		 * generation without improvment in fitness
+		 */
 		public int lastImprove = 0;
+		/**
+		 * the best fitness of the species
+		 */
 		public float BestFitness = -Float.MAX_VALUE;
+		/**
+		 * the best netowkr of the speices
+		 */
 		public NeuronNetwork Best;
 		
+		/**
+		 * update the fitness variable see above with the fitness of each network in the spcecies
+		 */
 		public void updateFitness() {
 			totalFitness=0;
 			BestFitness=-Float.MAX_VALUE;
@@ -86,6 +226,9 @@ public class GeneticAlgorithm {
 			adjustedFitness =fitness/this.size();//Adjusted fitness
 		}
 		
+		/**
+		 * useless
+		 */
 		public Species(){
 			super();
 			//bruh nothing here
@@ -93,7 +236,7 @@ public class GeneticAlgorithm {
 		
 		/**
 		 * return a random Network from the population weighted by their respective fitness
-		 * @return
+		 * @return a random Network from the population weighted by their respective fitness
 		 */
 		private NeuronNetwork randomPop() {
 			float val = R.nextFloat()*this.totalFitness;
@@ -106,6 +249,10 @@ public class GeneticAlgorithm {
 			return this.get(i);
 		}
 		
+		/**
+		 * Create a children from this species by merging two random parents selected by {@link #randomPop()}
+		 * @return the children network
+		 */
 		public NeuronNetwork CreateChildren() {
 			NeuronNetwork child=null;
 			
@@ -120,22 +267,40 @@ public class GeneticAlgorithm {
 		}
 	}
 	
-	
-	private ArrayList<NeuronNetwork> population = new ArrayList<NeuronNetwork>(); 
-	private ArrayList<Species> SpeciesArray = new ArrayList<Species>();
+	/**
+	 * return the amount of species
+	 * @return the amount of species
+	 */
 	public int getDiversity() {
 		return SpeciesArray.size();
 	}
 	
-	private int input;
+	/**
+	 * @return the input size of the network
+	 */
 	public int getInput() {
 		return input;
 	}
-	private int output;
+	/**
+	 * @return the output size of the network
+	 */
 	public int getOutput() {
 		return output;
 	}
 	
+	/**
+	 * generate the first generation of the genetic algorithm.
+	 * @param Pop the amount of network by generation
+	 * @param In the network number of input
+	 * @param Hid the network hidden structure (fully connected)
+	 * @param Out the network number of output
+	 * @param Integrity the amount of connection kept from the fully connected network associated to this structure
+	 * 
+	 * @since 1.1
+	 * @see #GeneticAlgorithm(int, int[])
+	 * @see #GeneticAlgorithm(int, int[], float)
+	 * @see #GeneticAlgorithm(int, int, int[], int)
+	 */
 	public GeneticAlgorithm(int Pop,int In,int[] Hid,int Out,float Integrity) {
 		pop=Pop;
 		initialIntegrity=Integrity;
@@ -147,26 +312,62 @@ public class GeneticAlgorithm {
 		for(int i=0;i<pop;i++) {
 			NeuronNetwork NN=new NeuronNetwork(In,Hid,Out,Integrity);
 			NN.normalizeNetwork(); 
-			NN.setId(i);
 			population.add(NN);
 		}
 	}
 	
+	/**
+	 * generate the first generation of the genetic algorithm.
+	 * @param Pop the amount of network by generation
+	 * @param Structure the Structure of the network (fully connected)
+	 * @param Integrity the amount of connection kept from the fully connected network associated to this structure
+	 * 
+	 * @since 1.1
+	 * @see #GeneticAlgorithm(int, int[])
+	 * @see #GeneticAlgorithm(int, int, int[], int)
+	 * @see #GeneticAlgorithm(int, int, int[], int, float)
+	 */
 	public GeneticAlgorithm(int Pop,int[]Structure,float Integrity) {
 		this(Pop,Structure[0],Arrays.copyOfRange(Structure, 1, Structure.length-1),Structure[Structure.length-1],Integrity);
 	}
-	
+
+	/**
+	 * generate the first generation of the genetic algorithm.
+	 * @param Pop the amount of network by generation
+	 * @param Structure the Structure of the network (fully connected)
+	 * 
+	 * @since 1.1
+	 * @see #GeneticAlgorithm(int, int[], float)
+	 * @see #GeneticAlgorithm(int, int, int[], int)
+	 * @see #GeneticAlgorithm(int, int, int[], int, float)
+	 */
 	public GeneticAlgorithm(int Pop,int[] Structure) {
 		this(Pop,Structure,1f);
 	}
-	
+
+	/**
+	 * generate the first generation of the genetic algorithm.
+	 * @param Pop the amount of network by generation
+	 * @param In the network number of input
+	 * @param Hid the network hidden structure (fully connected)
+	 * @param Out the network number of output
+	 * 
+	 * @since 1.1
+	 * @see #GeneticAlgorithm(int, int[])
+	 * @see #GeneticAlgorithm(int, int[], float)
+	 * @see #GeneticAlgorithm(int, int, int[], int, float)
+	 */
 	public GeneticAlgorithm(int Pop,int In,int[] Hid,int Out) {
 		this(Pop,In,Hid,Out,1f);
 	}
 	
 	
 	/**
-	 * 
+	 * Speciate the population ie distribute the network in category depending of their similarities.
+	 * this method is different from {@link #speciate()} because it care of the last Species array to generate the next one.
+	 * @see #speciate()
+	 * @see #speciate(float)
+	 * @see #forceSpeciate(int)
 	 */
 	private void speciateArr() {
 		//create copy of the Neural network because we gonna remove value
@@ -218,14 +419,21 @@ public class GeneticAlgorithm {
 		SpeciesArray=nextSpeciesArray;//replace the array
 	}
 
+	/**
+	 * Speciate the population ie distribute the network in category depending of their similarities.
+	 *
+	 * @see #speciate()
+	 * @see #speciate(float)
+	 * @see #forceSpeciate(int)
+	 */
 	public void speciate() {
 		speciate(threshold);
 	}
 	
 	/**
-	 * speciate BRUH
-	 * 
-	 * @param threshold
+	 * Speciate the population ie distribute the network in category depending of their similarities.
+	 *
+	 * @param threshold indicate how similar two network must be to be in the same species
 	 */
 	public void speciate(float threshold) {
 		//create copy of the Neural network because we gonna remove value
@@ -252,9 +460,11 @@ public class GeneticAlgorithm {
 	}
 	
 	/**
-	 * take random Neurals Networks to be the reference of their SpeciesArray
-	 * then sort the remaining Neural Network in the SpeciesArray that is the closest to him (using the compare functio on the reference)
-	 * @param SpeciesArrayAmount
+	 * not very useful, personally i don't use it.
+	 * 
+	 * take random Neural Networks to be the reference of their SpeciesArray
+	 * then sort the remaining Neural Network in the SpeciesArray that is the closest to him (using the compare function on the reference)
+	 * @param SpeciesArrayAmount the wanted number of species
 	 */
 	public void forceSpeciate(int SpeciesArrayAmount) {
 		//create copy of the Neural network because we gonna remove value
@@ -283,8 +493,11 @@ public class GeneticAlgorithm {
 		}
 	}
 	
+	/**
+	 * compute the next generation of neuralNetwork
+	 */
 	public void nextGen() {
-		float Fit  = -Float.MAX_VALUE;
+		gen++;
 		
 		//update threshold
 		if(SpeciesArray.size()<speciesTarget) 
@@ -292,9 +505,8 @@ public class GeneticAlgorithm {
 		else
 			threshold+=0.05;
 		
-		
-		
 		//look for best Network
+		float Fit  = -Float.MAX_VALUE;
 		NeuronNetwork Best = null;
 		int SpecBest = -1;
 		for(int i=0;i<SpeciesArray.size();i++)
@@ -304,16 +516,14 @@ public class GeneticAlgorithm {
 					Best=NN;
 					SpecBest=i;					
 				}
-		gen++;
 		
-		
+		//compute new species.
 		float Fsum = 0;
 		int Isum = 0;
 		population=new ArrayList<NeuronNetwork>();
 		for(int i=0;i<SpeciesArray.size();i++) {			
 			Fsum += (SpeciesArray.get(i).adjustedFitness/adjustedFitness*SpeciesArray.get(i).size()); // to solve rounding problems
 			int nextSize = (int)Fsum-Isum;
-			//System.out.println("size : "+nextSize);
 			Isum=(int)Fsum;
 			for(int j=0;j<nextSize;j++) {
 				if(j==0 && i==SpecBest) {
@@ -321,13 +531,13 @@ public class GeneticAlgorithm {
 					population.add(Best.clone());
 					continue;
 				}
-				if(SpeciesArray.get(i).Best.Complexity()==0 || SpeciesArray.get(i).lastImprove>ImprovementLimit) {//improvment 
+				if(SpeciesArray.get(i).Best.Complexity()==0 || SpeciesArray.get(i).lastImprove>ImprovementLimit) {
+					//if the species is not progressing or if it's in a soft lock configuration (as 0 complexity network for example), then we generate new networks
 					NeuronNetwork NN=new NeuronNetwork(initialStructure,initialIntegrity);
 					NN.normalizeNetwork(); 
-					NN.setId(i);
 					population.add(NN);
 				}
-				//if the species is not progressing or if it is in a soft lock configuration (as 0 complexity network for example), then we generate new network 
+				 
 				NeuronNetwork newPop = SpeciesArray.get(i).CreateChildren();
 				newPop.mutate();
 				population.add(newPop);
@@ -337,9 +547,10 @@ public class GeneticAlgorithm {
 	}
 	
 	/**
-	 *test all neuralNetwork
-	 * @param data
-	 * @param target
+	 * test all neuralNetwork (evaluate their fitness)
+	 * then update the species update (you must call this method before using nextGen)
+	 * @param data the database of tests
+	 * @param target the wanted result value for this tests
 	 */
 	public void tests(ArrayList<float[]> data,ArrayList<float[]> target) {
 		fitness=0;
@@ -365,9 +576,10 @@ public class GeneticAlgorithm {
 	
 
 	/**
-	 *train all neuralNetwork
-	 * @param data
-	 * @param target
+	 * do the same as above except it also train the network (so the algorithm don't wander randomly to find good weights through generation and can learn a bit with time)
+	 * @param data the database of tests
+	 * @param target the wanted result value for this tests
+	 * @param testCycle number of tests (the total number of test is S*testCycle where S is the size of the database of tests)
 	 */
 	public void train(ArrayList<float[]> data,ArrayList<float[]> target,int testCycle) {
 		fitness=0;
@@ -386,18 +598,29 @@ public class GeneticAlgorithm {
 		fitness/=pop;
 	}
 	
-	public String header() {
+	/**
+	 * 
+	 * @return a compact string representation of the genetic algorithm
+	 */
+	public String toString() {
 		return("<Class : Genetic Algorithm | generation : "+gen+" | population : "+pop+">\n");
 	}
 	
-	public String toString() {
-		String output = header();
+	/**
+	 * @return a string representation of the genetic algorithm with every neural network in the actual generation
+	 */
+	public String longInfo() {
+		String output = toString();
 		for(NeuronNetwork NN:population) {
 			output+=NN.toString();
 		}
 		return output;
 	}
 	
+	/**
+	 * give info about every species with all the network in the species
+	 * @return info about every species with all the network in the species
+	 */
 	public String infoSpeciesArray() {
 		String output="<SpeciesArray Info | Number of Species : "+SpeciesArray.size()+" >\n\n";
 		int i=1;
@@ -407,6 +630,10 @@ public class GeneticAlgorithm {
 		return output;
 	}
 	
+	/**
+	 * same as {@link #infoSpeciesArray()} but without the network info
+	 * @return info about the species
+	 */
 	public String infoSpeciesArrayShort() {
 		String output="<SpeciesArray Info | Number of Species : "+SpeciesArray.size()+" >\n\n";
 		int i=1;

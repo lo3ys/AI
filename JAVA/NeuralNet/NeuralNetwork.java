@@ -1,4 +1,4 @@
-package NeuralNet;
+package neuralnet;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -16,7 +16,7 @@ import utilities.functions;
 /**
  * this class create fully connected neural network.
  * 
- * @see {@link NeuralNet.NeuronNetwork}
+ * @see {@link neuralnet.NeuronNetwork}
  * @version 1.2
  * @author Physic Dev
  * 

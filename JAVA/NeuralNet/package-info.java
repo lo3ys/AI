@@ -1,1 +1,1 @@
-package NeuralNet;
+package neuralnet;
