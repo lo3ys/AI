@@ -1,5 +1,12 @@
 package neuralnet;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
@@ -389,14 +396,17 @@ public class NeuronNetwork {
 	ArrayList<Neuron> Neurons = new ArrayList<Neuron>();//est-ce encore utile ce truc?
 	
 	ArrayList<Synapse> Synapses = new ArrayList<Synapse>();//est-ce encore utile ce truc?**/
-	
-	//for faster Compute
-	 /**
-	  * Do not modify this variable.
-	  * it's public only to make computation easier
-	  */
-	public ArrayList<ArrayList<Neuron>> Layers = new ArrayList<ArrayList<Neuron>>();
+	  
+	  /**
+	   * 
+	   */
+	protected ArrayList<ArrayList<Neuron>> Layers = new ArrayList<ArrayList<Neuron>>();
 
+	public void addFitness(float fit) {
+		fitness=(fitness*tests+fit)/(tests+1);
+		tests++;
+	}
+	
 	/**
 	 * the fitness indicate how well the neuron is working
 	 * used in genetic algorithm but can also be used to track the learning of the neural netowrk
@@ -540,6 +550,15 @@ public class NeuronNetwork {
 		    	}
 		    	else
 		    		continue;
+		for(int i=1;i<Layers.size();i++)
+			 for(Neuron N:Layers.get(i))
+				 for(Neuron other:Layers.get(i-1))
+					if(other.type != Bias && R.nextFloat()<Integrity) {
+						Synapse S=new Synapse(other,N);
+						N.Synapses.add(S);
+						other.BackSynapses.add(S);
+						totalSynapses++;
+					}
 		while(totalSynapses==0) {//to be sure there are at least one Synapse
 			for(int i=1;i<Layers.size();i++)
 				 for(Neuron N:Layers.get(i))
@@ -1252,7 +1271,7 @@ public class NeuronNetwork {
 	 */
 	public void setInputs(float[] data)throws ArrayIndexOutOfBoundsException{
 		if(data.length != inputLength)
-			throw new ArrayIndexOutOfBoundsException("Data array must have the size of the inputs number");
+			throw new ArrayIndexOutOfBoundsException("Data array must have the size of the inputs number : "+data.length+" "+inputLength);
 		int i=0;
 		for(Neuron N:Layers.get(0))
 			if(N.type==Input) {
@@ -1301,6 +1320,50 @@ public class NeuronNetwork {
 		return outputs;
 	}
 	
+	/**
+	 * give the output sorted by their higher value;
+	 * @return
+	 */
+	public int[] maxOutputs() {
+		float[] output=getOutputs();
+		int[] out = new int[outputLength];
+		for(int i=0;i<outputLength;i++)
+			out[i]=i;
+		quickSort(out,output,0,outputLength-1);
+		return out;
+	}
+	
+	//made my own quick sort because i'm not sure playing with mapping and list method are very efficient
+	private void quickSort(int[] index,float[] arr,int low,int high){
+		if(low<high) {
+			int p = partition(index,arr,low,high);
+        	quickSort(index,arr,low,p-1);
+        	quickSort(index,arr,p+1,high);
+		}
+	}
+	
+	private int partition(int[] index,float[] arr, int low, int high) {
+		float pivot=arr[high];
+		int Ppos=low-1;
+		for(int i=low;i<=high-1;i++) {
+			if(arr[i]>pivot) {//pour avoir un ordre déroissant (max in first)
+				Ppos++;
+				swap(index,arr,Ppos,i);
+			}
+		}
+		swap(index,arr,Ppos+1,high);
+		return Ppos+1;
+	}
+	
+	private void swap(int[] index,float[] arr, int x, int y) {
+		float temp=arr[x];
+		arr[x]=arr[y];
+		arr[y]=temp;
+		int tempI=index[x];
+		index[x]=index[y];
+		index[y]=tempI;
+	}
+
 	/**
 	 * 
 	 * compute the fitness value of the neural network using its best value.
@@ -1690,5 +1753,119 @@ public class NeuronNetwork {
 						}
 				}
 		return output;
+	}
+	
+	public int save(String path) throws IOException{
+	      DataOutputStream out=new DataOutputStream(new FileOutputStream(new File(path).getAbsoluteFile()));
+	      out.writeUTF("NeuronStructure");
+	      out.writeInt(totalNeurons);
+	      out.writeInt(totalSynapses);
+	      out.writeInt(inputLength);
+	      out.writeInt(outputLength);
+	      out.writeInt(nextId);
+	      out.writeInt(Layers.size());
+	      //write all neuron
+	      for(ArrayList<Neuron> layer:Layers) {
+	    	  out.writeInt(layer.size());
+	    	  for(Neuron N:layer) {
+	    		  out.writeInt(N.Id);
+	    		  out.writeByte(N.type);
+	    	  }
+	      }
+	      //write all synapses
+	      for(ArrayList<Neuron> layer:Layers) {
+	    	  for(Neuron N:layer) {
+	    		  for(Synapse S:N.Synapses) {
+	    			  out.writeChar('S');
+	    			  out.writeInt(S.parent.Id);
+	    			  out.writeInt(S.parent.layer);
+	    			  out.writeInt(S.children.Id);
+	    			  out.writeInt(S.children.layer);
+	    			  out.writeBoolean(S.enabled);
+	    			  out.writeFloat(S.weight);
+	    		  }
+	    	  }
+	      }
+
+		  out.writeChar('E');
+	      out.writeUTF("==>");//end of file
+	      out.flush();
+	      out.close();
+	      return out.size();
+	}
+	
+	public int load(String path) throws IOException {
+		File file=new File(path).getAbsoluteFile();
+		DataInputStream in=new DataInputStream(new FileInputStream(file));
+	    String typeCheck=in.readUTF();
+	    if(0!=typeCheck.compareTo("NeuronStructure"))
+	    	throw new IOException("wrong file header... error");
+	    
+	    int TN=in.readInt();
+	    int TS=in.readInt();
+	    int In=in.readInt();
+	    int Out=in.readInt();
+	    int NI=in.readInt();
+	    
+	    int L=in.readInt();
+	    
+	    int CheckIn=0;
+	    int CheckOut=0;
+	    
+	    ArrayList<ArrayList<Neuron>> newLayer=new ArrayList<ArrayList<Neuron>>();
+	    for(int i=0;i<L;i++) {
+	    	newLayer.add(new ArrayList<Neuron>());
+	    	int layerSize=in.readInt();
+		    for(int j=0;j<layerSize;j++){
+		    	//System.out.println("load 1");
+		    	int Id=in.readInt();
+		    	int type=in.readByte();
+		    	if(type==Input)
+		    		CheckIn++;
+		    	if(type==Output)
+		    		CheckOut++;
+		    	Neuron N=new Neuron(type,i);
+		    	N.Id=Id;
+		    	nextId--;
+		    	newLayer.get(i).add(N);
+		    }
+	    }
+	    if(In!=CheckIn||Out!=CheckOut)
+	    	throw new IOException("network input/output neuron doesn't match the header values");
+	    
+	    while(in.readChar()=='S'){
+	    	int PI=in.readInt();
+	    	int PL=in.readInt();
+	    	int CI=in.readInt();
+	    	int CL=in.readInt();
+	    	boolean ena=in.readBoolean();
+	    	float weight=in.readFloat();
+	    	
+	    	Neuron Parent=null;
+	    	Neuron Children=null;
+	    	for(Neuron N:newLayer.get(PL))
+	    		if(N.Id==PI)
+	    			Parent=N;
+	    	for(Neuron N:newLayer.get(CL))
+	    		if(N.Id==CI)
+	    			Children=N;
+	    	Synapse S=new Synapse(Parent,Children);
+	    	S.enabled=ena;
+	    	S.weight=weight;
+	    	Children.Synapses.add(S);
+	    	Parent.BackSynapses.add(S);
+	    }
+
+	    String endOfFileCheck=in.readUTF();
+	    if(0!=endOfFileCheck.compareTo("==>"))
+	    	throw new IOException("wrong end of file ... error");
+	    
+	    //if everything go right : 
+	    totalNeurons=TN;
+	    totalSynapses=TS;
+	    nextId=NI;
+	    Layers=newLayer;
+	    
+	    return (int)file.length();
 	}
 }

@@ -345,7 +345,7 @@ public class Perceptron {
 	 */
 	public void compute(){
 		Matrix Out=weight.product(input);
-		output=(Out.values[0][0]+biais);
+		output=(Out.get(0,0)+biais);
 		if(Custom) {
 			output=CustomActivation.apply(output);
 		}else{
@@ -470,7 +470,7 @@ public class Perceptron {
 	public String PrintWeight() {
 		String R="";
 		for(int i=0; i<weight.getX();i++) {
-			R+="w"+i+" : "+weight.values[i][0]+"\n";
+			R+="w"+i+" : "+weight.get(i,0)+"\n";
 		}
 		R+="biais : "+biais;
 		return(R);
@@ -502,7 +502,8 @@ public class Perceptron {
 			out.writeUTF("PerceptronDataFile :");
 			out.writeInt(inputLength);
 			out.writeInt(experience);
-			for(float[] w:weight.values) {out.writeFloat(w[0]);}
+			weight.writeInFile(out);
+			//for(float[] w:weight.values) {out.writeFloat(w[0]);}
 			out.writeFloat(biais);
 			out.writeUTF("==>");
 			out.flush();

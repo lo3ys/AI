@@ -22,7 +22,22 @@ public class Matrix {
 	/**
 	 * the core of the class, store all the values of the matrix
 	 */
-	public float[][] values;
+	private float[][] values;
+	public float get(int x,int y) {
+		return values[x][y];
+	}
+	public float[] getLine(int x) {
+		return values[x].clone();
+	}
+	public float[] getCol(int y) {
+		//bruh flemme
+		return null;
+	}
+	public void set(int x,int y,float f)throws IndexOutOfBoundsException{
+		if(x<0||x>=X)throw new IndexOutOfBoundsException("index out of matrix bounds ("+x+" out of bounds 0-"+X+")");
+		if(y<0||y>=Y)throw new IndexOutOfBoundsException("index out of matrix bounds ("+y+" out of bounds 0-"+Y+")");
+		values[x][y] = f;
+	}
 	//for the random generation
 	private Random Rand = new Random();
 	
@@ -320,6 +335,23 @@ public class Matrix {
 		return(R);
 	}
 	
+	/**
+	 * Kronecker product of two matrix
+	 * do this*Mat wher * is the Kronecker product.
+	 * @return the Kronecker product
+	 * 
+	 * @see <a href="https://en.wikipedia.org/wiki/Kronecker_product"> what is matrix Kronecker product ?</a>
+	 */
+	public Matrix KroneckerProduct(Matrix M){
+		Matrix R = new Matrix(X*M.X,Y*M.Y);
+		for(int i=0;i<X;i++)
+			for(int j=0;j<Y;j++)
+				for(int i2=0;i2<M.X;i2++)
+					for(int j2=0;j2<M.Y;j2++)
+						R.values[X*i+i2][Y*j+j2]=values[i][j]*M.values[i2][j2];
+		return R;
+	}
+	
 	//factor product
 	/**
 	 * multiply all the term of the matrix by a value
@@ -598,11 +630,9 @@ public class Matrix {
 	 * @since 1.1
 	 */
 	public void writeInFile(DataOutputStream out) throws IOException {
-		for(int i=0;i<X; i++) {
-			for(int j=0;j<Y; j++) {
+		for(int i=0;i<X; i++)
+			for(int j=0;j<Y; j++)
 				out.writeFloat(values[i][j]);
-			}
-		}
 	}
 	
 	/**
@@ -613,10 +643,8 @@ public class Matrix {
 	 * @since 1.1
 	 */
 	public void loadFromFile(DataInputStream in) throws IOException {
-		for(int i=0;i<X; i++) {
-			for(int j=0;j<Y; j++) {
+		for(int i=0;i<X; i++)
+			for(int j=0;j<Y; j++)
 				values[i][j]=in.readFloat();
-			}
-		}
 	}
 }

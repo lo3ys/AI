@@ -21,25 +21,25 @@ public class GeneticAlgorithm {
 	private int pop;
 	
 	//random variable for random generation
-	private Random R = new Random();
+	protected Random R = new Random();
 	
 	//Structure data and info
 	//initial Structure for new NeuralNetwork
-	private int[] initialStructure;
-	private float initialIntegrity;
-	private int input;
-	private int output;
+	protected int[] initialStructure;
+	protected float initialIntegrity;
+	protected int input;
+	protected int output;
 
 	//fitness data
-	private float fitness=0;
-	private float bestFitness=-Float.MAX_VALUE;
-	private float adjustedFitness=0;//rework fitness to avoid one species to crush the other
+	protected float fitness=0;
+	protected float bestFitness=-Float.MAX_VALUE;
+	protected float adjustedFitness=0;//rework fitness to avoid one species to crush the other
 	private NeuronNetwork Best=null;
 	
 	//network data
-	private ArrayList<NeuronNetwork> population = new ArrayList<NeuronNetwork>();//All the population
+	protected ArrayList<NeuronNetwork> population = new ArrayList<NeuronNetwork>();//All the population
 	private ArrayList<Species> SpeciesArray = new ArrayList<Species>();//the same network as above but distributed in species
-
+	
 	/**
 	 * return the actual generation.
 	 * @return the actual generation
@@ -309,6 +309,8 @@ public class GeneticAlgorithm {
 			initialStructure[1+i]=Hid[i];
 		initialStructure[0]=In;
 		initialStructure[1+Hid.length]=Out;
+		input=In;
+		output=Out;
 		for(int i=0;i<pop;i++) {
 			NeuronNetwork NN=new NeuronNetwork(In,Hid,Out,Integrity);
 			NN.normalizeNetwork(); 
@@ -546,6 +548,12 @@ public class GeneticAlgorithm {
 		speciateArr();//respeciate for the next generation
 	}
 	
+	public void copyBest() {
+		for(NeuronNetwork NN:population)
+			NN=this.getBest().clone();
+		
+	}
+	
 	/**
 	 * test all neuralNetwork (evaluate their fitness)
 	 * then update the species update (you must call this method before using nextGen)
@@ -573,6 +581,29 @@ public class GeneticAlgorithm {
 		adjustedFitness/=pop;
 		fitness/=pop;
 	}
+	
+	/**
+	 * update the species update (you must call this method before using nextGen)
+	 */
+	public void updateFitness(){
+		fitness=0;
+		adjustedFitness=0;
+		bestFitness=-Float.MAX_VALUE;
+		for(NeuronNetwork NN : population)
+			fitness=NN.getFitness();
+		for(Species S:SpeciesArray) {
+			S.updateFitness();
+			for(NeuronNetwork NN:S)
+				adjustedFitness+=NN.getFitness()/S.size();
+			if(bestFitness<=S.BestFitness) {
+				Best=S.Best;
+				bestFitness=S.BestFitness;
+			}
+		}
+		adjustedFitness/=pop;
+		fitness/=pop;
+	}
+	
 	
 
 	/**

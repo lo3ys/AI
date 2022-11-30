@@ -104,8 +104,53 @@ public class NeuralNetwork {
    * @since 1.2
    */
   public float[] getOutput() {
-    return(new Matrix(values[values.length-1]).values[0]);
+    return(new Matrix(values[values.length-1]).getLine(0));
   }
+  
+  /**
+	 * give the output sorted by their higher value;
+	 * @return
+	 */
+	public int[] maxOutputs() {
+		float[] output=getOutput();
+		int[] out = new int[outputLength];
+		for(int i=0;i<outputLength;i++)
+			out[i]=i;
+		quickSort(out,output,0,outputLength-1);
+		return out;
+	}
+	
+	//made my own quick sort because i'm not sure playing with mapping and list method are very efficient
+	private void quickSort(int[] index,float[] arr,int low,int high){
+		if(low<high) {
+			int p = partition(index,arr,low,high);
+      	quickSort(index,arr,low,p-1);
+      	quickSort(index,arr,p+1,high);
+		}
+	}
+	
+	private int partition(int[] index,float[] arr, int low, int high) {
+		float pivot=arr[high];
+		int Ppos=low-1;
+		for(int i=low;i<=high-1;i++) {
+			if(arr[i]>pivot) {//pour avoir un ordre déroissant (max in first)
+				Ppos++;
+				swap(index,arr,Ppos,i);
+			}
+		}
+		swap(index,arr,Ppos+1,high);
+		return Ppos+1;
+	}
+	
+
+	private void swap(int[] index,float[] arr, int x, int y) {
+		float temp=arr[x];
+		arr[x]=arr[y];
+		arr[y]=temp;
+		int tempI=index[x];
+		index[x]=index[y];
+		index[y]=tempI;
+	}
   
   public int OutputIndex() {
     return(values[layer-1].max()[1]);
