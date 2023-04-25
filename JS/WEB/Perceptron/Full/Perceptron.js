@@ -1,4 +1,4 @@
-/*NETSCAPE_SWEGA®
+/*
 iNodes = input number (int)
 
 this.lr = learning rate
@@ -24,109 +24,134 @@ if trainMode is egual to "burst" train all weights n time(s) (n = this.cycles)
 
 sigmoid and tahn, are just activation functions
 */
-function Perceptron(iNodes, trainMode="default", activation = "sigmoid") {
-  if(iNodes instanceof Perceptron){
-    let a = iNodes;
-    this.weights = a.weights;
-    this.iNodes = a.iNodes;
-    this.trainMode = a.trainMode;
-    this.biais = a.biais;
-    this.lr = a.lr;
-    this.activation = a.activation;
-    this.cycles = 1000;
-  }else{
-    this.weights = [];
-    this.iNodes = iNodes;
-    this.trainMode = trainMode;
-    this.biais = -1;
-    this.lr = 0.1;
-    this.activation = activation;
-    this.cycles = 1000;
-    for (let i = 0; i < this.iNodes; i++) {
-      this.weights[i] = Math.random();
+
+class Perceptron {
+  in_nodes;
+  weights;
+  trainMode;
+  biais;
+  lr;
+  /**
+   * @type {(x: number) => number}
+   */
+  activation_function;
+  cycles;
+
+  /**
+   * 
+   * @param {number | Perceptron} in_nodes number of input nodes
+   * @param {string} train_mode 
+   * @param {(x: number) => number} activation_function 
+   */
+  constructor(in_nodes, lr = 0.001, train_mode = "default", activation_function = Perceptron.sigmoid) {
+
+    if(in_nodes instanceof Perceptron){
+
+      const copy_perceptron = in_nodes;
+      this.weights = copy_perceptron.weights;
+      this.in_nodes = copy_perceptron.in_nodes;
+      this.train_mode = copy_perceptron.train_mode;
+      this.biais = copy_perceptron.biais;
+      this.lr = copy_perceptron.lr;
+      this.activation_function = copy_perceptron.activation_function;
+      this.cycles = copy_perceptron.cycles;
+
+    }else{
+
+      this.weights = [];
+      this.in_nodes = in_nodes;
+      this.train_mode = train_mode;
+      this.biais = -1;
+      this.lr = 0.1;
+      this.activation_function = activation_function
+      this.cycles = 1000;
+
+      for (let i = 0; i < this.in_nodes; i++) {
+        this.weights[i] = Math.random();
+      }
+
     }
   }
-}
 
-Perceptron.prototype.guess = function(inputs) {
-  if (Array.isArray(inputs)) {
-    if (inputs.length == this.weights.length) {
-      let sum = 0;
-      for (let i in inputs) {
-        sum += inputs[i] * this.weights[i];
-        sum -= this.biais;
-      }
-      if (this.activation == "sigmoid") {
-        return this.sigmoid(sum);
-      }else if(this.activation == "tahn"){
-        return this.tahn(sum);
-      }else{
-        console.log("no valid function, must be 'sigmoid' or 'tahn'.");
-        return;
-      }
-
-    } else {
-      console.log(`invalid inputs length, must be ${this.weights.length}`);
-      return;
+  /**
+   * 
+   * @param {number[]} inputs 
+   */
+  guess(inputs) {
+    if (!Array.isArray(inputs) || inputs.length != this.weights.length)
+      throw new Error("Inputs array must of the same length as the number of input nodes");
+        
+    let sum = 0;
+    for (let i in inputs) {
+      sum += inputs[i] * this.weights[i];
+      sum -= this.biais;
     }
+
+    return this.activation_function(sum);
   }
-}
 
-Perceptron.prototype.train = function(inputs, output) {
-  if (Array.isArray(inputs) && Array.isArray(output) == false) {
-    if (inputs.length == this.weights.length) {
-      if(this.trainMode == "default"){
-        for (let w in this.weights) {
+  train(inputs, output) {
 
-          this.weights[w] = this.weights[w] + (this.lr * (output - this.query(inputs)) * inputs[w]);
-        }
-      }else if(this.trainMode == "burst"){
-        for(let i = 0; i< this.cycles; i++){
+    return new Promise((resolve, reject) => {
+      if(!Array.isArray(inputs) || inputs.length != this.in_nodes)
+        reject("Inputs array must of the same length as the number of input nodes");
+      if (typeof output != "number")
+        reject("Output needs to be a number");
+
+      switch (this.train_mode) {
+        case "default":
           for (let w in this.weights) {
-
-            this.weights[w] = this.weights[w] + (this.lr * (output - this.query(inputs)) * inputs[w]);
+            this.weights[w] = this.weights[w] + (this.lr * (output - this.guess(inputs)) * inputs[w]);
           }
-        }
-      }else{
-        console.log("trainMode must be 'default' or 'burst'.");
-        return;
+          break;
+
+        case "burst":
+          for(let i = 0; i< this.cycles; i++){
+            for (let w in this.weights) {
+  
+              this.weights[w] = this.weights[w] + (this.lr * (output - this.guess(inputs)) * inputs[w]);
+            }
+          }
+          break;
+
+        default:
+          reject("Training mode needs to be default or burst")
+          break;
       }
+
+      resolve("ok");
+    });
+  }
+
+
+  static deserialize(data){
+    if(typeof data == "string"){
+      data = JSON.parse(data);
+    }
+    try{
+      let perc = new Perceptron(data.in_nodes, data.lr, data.activation_function, data.train_mode);
+      perc.weights = data.weights;
+      perc.in_nodes = data.in_nodes;
+      perc.train_mode = data.train_mode;
+      perc.biais = data.biais;
+      perc.lr = data.lr;
+      perc.activation_function = data.activation_function;
+      perc.cycles = 1000;
+      return perc;
+    }catch(e){
+      throw new Error(e);
     }
   }
-  return "trained";
-}
 
-Perceptron.prototype.serialize = function(){
-  return JSON.stringify(this);
-}
-
-Perceptron.deserialize = function(data){
-  if(typeof data == "string"){
-    data = JSON.parse(data);
+  copy(){
+    return new Perceptron(this);
   }
-  try{
-    let perc = new Perceptron(data.iNodes, data.lr, data.activation, data.trainMode);
-    perc.weights = data.weights;
-    perc.iNodes = data.iNodes;
-    perc.trainMode = data.trainMode;
-    perc.biais = data.biais;
-    perc.lr = data.lr;
-    perc.activation = data.activation;
-    perc.cycles = 1000;
-    return perc;
-  }catch(e){
-    console.error(e);
+
+  static sigmoid = function(x) {
+    return 1 / (1 + Math.pow(Math.E, -x));
   }
-}
-
-Perceptron.prototype.copy = function(){
-  return new Perceptron(this);
-}
-
-Perceptron.prototype.sigmoid = function(t) {
-  return 1 / (1 + Math.pow(Math.E, -t));
-}
-
-Perceptron.prototype.tahn = function(t) {
-  return 2 * this.sigmoid(2 * t) - 1;
+  
+  static tahn = function(x) {
+    return 2 * Perceptron.sigmoid(2 * x) - 1;
+  }
 }
