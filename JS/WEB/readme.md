@@ -1,0 +1,1 @@
+All codes in this folder are usable as is in a frontend

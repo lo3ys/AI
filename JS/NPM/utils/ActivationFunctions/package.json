@@ -1,0 +1,35 @@
+{
+  "name": "activationfunctions",
+  "version": "1.0.0",
+  "description": "",
+  "main": "lib/activationfunctions.js",
+  "types": "lib/activationfunctions.d.ts",
+  "scripts": {
+    "test": "jest --config jestconfig.json",
+    "test:cov": "jest --config jestconfig.json --coverage",
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\"",
+    "lint": "npx eslint ./src/activationfunctions.ts"
+  },
+  "typeAcquisition": {
+      "include": [
+          "jest"
+      ]
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/jest": "^29.5.1",
+    "@typescript-eslint/eslint-plugin": "^5.59.1",
+    "@typescript-eslint/parser": "^5.59.1",
+    "eslint": "^8.39.0",
+    "eslint-config-prettier": "^8.8.0",
+    "jest": "^29.5.0",
+    "prettier": "^2.8.8",
+    "ts-jest": "^29.1.0",
+    "typescript": "^5.0.4"
+  }
+}
+
