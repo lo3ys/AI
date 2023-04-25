@@ -24,7 +24,7 @@ class Perceptron {
    */
   guess(inputs) {
     if(inputs.length != this.in_nodes && !Array.isArray(inputs))
-      throw new Error("Inputs array not matching");
+      throw new Error("Inputs array must of the same length as the number of input nodes");
 
     let sum = 0;
     for(let i in inputs){
@@ -40,7 +40,7 @@ class Perceptron {
    */
   train(inputs, output) {
     if(!Array.isArray(inputs) || inputs.length != this.in_nodes)
-      throw new Error("Inputs array not matching");
+      throw new Error("Inputs array must of the same length as the number of input nodes");
     if (typeof output != "number")
       throw new Error("Output needs to be a number");
 
