@@ -1,18 +1,18 @@
 class Perceptron {
 
-  in_nodes;
+  in_neurons;
   weights;
   bias;
   lr;
 
   /**
    * 
-   * @param {number} in_nodes 
+   * @param {number} in_neurons 
    * @param {number} lr learning rate
    */
-  constructor(in_nodes, lr=0.001) {
-    this.in_nodes = in_nodes;
-    this.weights = new Array(in_nodes).fill(Math.random());
+  constructor(in_neurons, lr=0.001) {
+    this.in_neurons = in_neurons;
+    this.weights = new Array(in_neurons).fill(Math.random());
     this.bias = 1;
     this.lr = lr;
   }
@@ -23,7 +23,7 @@ class Perceptron {
    * @returns 
    */
   guess(inputs) {
-    if(inputs.length != this.in_nodes && !Array.isArray(inputs))
+    if(inputs.length != this.in_neurons && !Array.isArray(inputs))
       throw new Error("Inputs array must of the same length as the number of input nodes");
 
     let sum = 0;
@@ -39,7 +39,7 @@ class Perceptron {
    * @param {number} output 
    */
   train(inputs, output) {
-    if(!Array.isArray(inputs) || inputs.length != this.in_nodes)
+    if(!Array.isArray(inputs) || inputs.length != this.in_neurons)
       throw new Error("Inputs array must of the same length as the number of input nodes");
     if (typeof output != "number")
       throw new Error("Output needs to be a number");

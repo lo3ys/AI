@@ -26,7 +26,7 @@ sigmoid and tahn, are just activation functions
 */
 
 class Perceptron {
-  in_nodes;
+  in_neurons;
   weights;
   trainMode;
   biais;
@@ -39,17 +39,17 @@ class Perceptron {
 
   /**
    * 
-   * @param {number | Perceptron} in_nodes number of input nodes
+   * @param {number | Perceptron} in_neurons number of input nodes
    * @param {string} train_mode 
    * @param {(x: number) => number} activation_function 
    */
-  constructor(in_nodes, lr = 0.001, train_mode = "default", activation_function = Perceptron.sigmoid) {
+  constructor(in_neurons, lr = 0.001, train_mode = "default", activation_function = Perceptron.sigmoid) {
 
-    if(in_nodes instanceof Perceptron){
+    if(in_neurons instanceof Perceptron){
 
-      const copy_perceptron = in_nodes;
+      const copy_perceptron = in_neurons;
       this.weights = copy_perceptron.weights;
-      this.in_nodes = copy_perceptron.in_nodes;
+      this.in_neurons = copy_perceptron.in_neurons;
       this.train_mode = copy_perceptron.train_mode;
       this.biais = copy_perceptron.biais;
       this.lr = copy_perceptron.lr;
@@ -59,14 +59,14 @@ class Perceptron {
     }else{
 
       this.weights = [];
-      this.in_nodes = in_nodes;
+      this.in_neurons = in_neurons;
       this.train_mode = train_mode;
       this.biais = -1;
       this.lr = 0.1;
       this.activation_function = activation_function
       this.cycles = 1000;
 
-      for (let i = 0; i < this.in_nodes; i++) {
+      for (let i = 0; i < this.in_neurons; i++) {
         this.weights[i] = Math.random();
       }
 
@@ -93,7 +93,7 @@ class Perceptron {
   train(inputs, output) {
 
     return new Promise((resolve, reject) => {
-      if(!Array.isArray(inputs) || inputs.length != this.in_nodes)
+      if(!Array.isArray(inputs) || inputs.length != this.in_neurons)
         reject("Inputs array must of the same length as the number of input nodes");
       if (typeof output != "number")
         reject("Output needs to be a number");
@@ -129,9 +129,9 @@ class Perceptron {
       data = JSON.parse(data);
     }
     try{
-      let perc = new Perceptron(data.in_nodes, data.lr, data.activation_function, data.train_mode);
+      let perc = new Perceptron(data.in_neurons, data.lr, data.activation_function, data.train_mode);
       perc.weights = data.weights;
-      perc.in_nodes = data.in_nodes;
+      perc.in_neurons = data.in_neurons;
       perc.train_mode = data.train_mode;
       perc.biais = data.biais;
       perc.lr = data.lr;
