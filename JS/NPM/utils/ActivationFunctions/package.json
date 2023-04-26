@@ -1,7 +1,7 @@
 {
   "name": "@ai-mer/activationfunctions",
   "version": "1.0.0",
-  "description": "",
+  "description": "A collection of common activation functions",
   "main": "lib/activationfunctions.js",
   "types": "lib/activationfunctions.d.ts",
   "scripts": {
@@ -13,13 +13,13 @@
     "lint": "npx eslint ./src/activationfunctions.ts"
   },
   "typeAcquisition": {
-      "include": [
-          "jest"
-      ]
+    "include": [
+      "jest"
+    ]
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "loeys",
+  "license": "GPL-3.0-only",
   "devDependencies": {
     "@types/jest": "^29.5.1",
     "@typescript-eslint/eslint-plugin": "^5.59.1",
@@ -30,6 +30,8 @@
     "prettier": "^2.8.8",
     "ts-jest": "^29.1.0",
     "typescript": "^5.0.4"
+  },
+  "directories": {
+    "lib": "lib"
   }
 }
-
