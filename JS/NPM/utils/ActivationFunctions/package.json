@@ -1,5 +1,5 @@
 {
-  "name": "activationfunctions",
+  "name": "@ai-mer/activationfunctions",
   "version": "1.0.0",
   "description": "",
   "main": "lib/activationfunctions.js",

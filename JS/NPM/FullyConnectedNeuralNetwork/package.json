@@ -1,20 +1,21 @@
 {
-  "name": "utils",
+  "name": "@ai-mer/fullyconnectedneuralnetwork",
   "version": "1.0.0",
   "description": "",
-  "main": "lib/utils.js",
+  "main": "lib/nn.js",
+  "types": "lib/nn.d.ts",
   "scripts": {
     "test": "jest --config jestconfig.json",
     "test:cov": "jest --config jestconfig.json --coverage",
     "build": "tsc",
     "dev": "tsc --watch",
     "format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\"",
-    "lint": "npx eslint ./src/matrix.ts"
+    "lint": "npx eslint ./src/nn.ts"
   },
   "typeAcquisition": {
-      "include": [
-          "jest"
-      ]
+    "include": [
+        "jest"
+    ]
   },
   "keywords": [],
   "author": "",

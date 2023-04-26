@@ -1,12 +1,19 @@
 //MultiLayered NeuralNetwork Class with a Matrix class for calculation.
 
-class Layer {
-	neurons;
-	length;
-}
+
 
 class Neuron {
 
+}
+
+class Layer {
+	values: Matrix;
+	length: number;
+	activation_function: (x: number) => number;
+
+	constructor(length) {
+
+	}
 }
 
 class NeuralNetwork {

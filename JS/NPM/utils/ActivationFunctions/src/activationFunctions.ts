@@ -1,4 +1,15 @@
-const Sigmoid = {
+interface Activation_Function {
+  /**
+   * the activation function
+   */
+  func: (x: number) => number;
+  /**
+   * the activation function derivative
+   */
+  func_deriv: (x: number) => number;
+}
+
+const Sigmoid: Activation_Function = {
   func: function (x: number) {
     return 1 / (1 + Math.exp(-x));
   },
@@ -8,7 +19,7 @@ const Sigmoid = {
   },
 };
 
-const Than = {
+const Than: Activation_Function = {
   func: function (x: number) {
     return Math.tanh(x);
   },
@@ -18,18 +29,20 @@ const Than = {
   },
 };
 
-const ReLU = {
+const ReLU: Activation_Function = {
   func: function (x: number) {
     return Math.max(0, x);
   },
 
   func_deriv: function (x: number) {
-    if (x <= 0) return 0;
-    else if (x > 0) return 1;
+    if (x <= 0)
+      return 0;
+    else
+      return 1;
   },
 };
 
-const Linear = {
+const Linear: Activation_Function = {
   func: function (x: number) {
     return x;
   },
