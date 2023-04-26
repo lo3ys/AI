@@ -1,39 +1,33 @@
 //MultiLayered NeuralNetwork Class with a Matrix class for calculation.
+import { Activation_Function, Sigmoid } from "@ai-mer/activationfunctions"
 
 
+// class Neuron {
 
-class Neuron {
+// }
 
-}
+// class Layer {
+// 	values: Matrix;
+// 	length: number;
+// 	activation_function: Activation_Function;
 
-class Layer {
-	values: Matrix;
-	length: number;
-	activation_function: (x: number) => number;
-
-	constructor(length) {
-
-	}
-}
+// 	constructor(length: number, activation_function=Sigmoid) {
+// 		this.length = length;
+// 		this.activation_function = activation_function;
+// 	}
+// }
 
 class NeuralNetwork {
-	/**
-	 *
-	 * @param {!number} in_nodes input nodes
-	 * @param {!(number[]|number)} hid_nodes hidden nodes array, if one layer no needs to send an array
-	 * @param {!number} out_nodes output nodes
-	 * @param {!number} [lr] learning rate (default 0.001)
-	 * @returns null if an error occured
-	 */
-	constructor(in_nodes, hid_nodes, out_nodes, lr = 0.001) {
-		if (typeof in_nodes != 'number')
-			throw new TypeError("in_nodes must be integer")
+	
+	constructor(in_neurons, hid_nodes, out_nodes, lr = 0.001) {
+		if (typeof in_neurons != 'number')
+			throw new TypeError("in_neurons must be integer")
 		else if (typeof out_nodes != 'number')
 			throw new TypeError("out_nodes must be integer")
 		if (!Array.isArray(hid_nodes))
 			hid_nodes = [hid_nodes];
 
-		this.input_nodes = in_nodes;
+		this.input_nodes = in_neurons;
 		this.hidden_nodes = hid_nodes;
 		this.output_nodes = out_nodes;
 		this.weights = [];

@@ -35,10 +35,8 @@ const ReLU: Activation_Function = {
   },
 
   func_deriv: function (x: number) {
-    if (x <= 0)
-      return 0;
-    else
-      return 1;
+    if (x <= 0) return 0;
+    else return 1;
   },
 };
 
@@ -52,4 +50,4 @@ const Linear: Activation_Function = {
   },
 };
 
-export { Sigmoid, Than, ReLU, Linear };
+export { Sigmoid, Than, ReLU, Linear, Activation_Function };
