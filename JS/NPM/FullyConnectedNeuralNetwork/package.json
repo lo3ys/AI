@@ -13,11 +13,6 @@
     "format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\"",
     "lint": "npx eslint ./src/nn.ts"
   },
-  "typeAcquisition": {
-    "include": [
-      "jest"
-    ]
-  },
   "keywords": [],
   "author": "loeys",
   "license": "GPL-3.0-only",
