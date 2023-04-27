@@ -1,8 +1,8 @@
 # <span style="color:#E41B17">@ai-mer</span> : activation Functions
 
-A collection of common activation functions.
+A collection of common activation functions with a ts interface to create new ones.
 
-Each function object contains the function with its derivative
+Each function object contains the function itself with its derivative
 
 Used by the AIs of the @ai-mer library
 

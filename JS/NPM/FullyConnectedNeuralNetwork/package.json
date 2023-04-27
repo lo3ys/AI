@@ -4,6 +4,7 @@
   "description": "",
   "main": "lib/nn.js",
   "types": "lib/nn.d.ts",
+  "files": ["/lib"],
   "scripts": {
     "test": "jest --config jestconfig.json",
     "test:cov": "jest --config jestconfig.json --coverage",
@@ -14,7 +15,7 @@
   },
   "typeAcquisition": {
     "include": [
-        "jest"
+      "jest"
     ]
   },
   "keywords": [],
@@ -30,5 +31,8 @@
     "prettier": "^2.8.8",
     "ts-jest": "^29.1.0",
     "typescript": "^5.0.4"
+  },
+  "dependencies": {
+    "@ai-mer/activationfunctions": "file:../utils/ActivationFunctions"
   }
 }

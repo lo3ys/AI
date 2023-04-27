@@ -4,6 +4,7 @@
   "description": "A collection of common activation functions",
   "main": "lib/activationfunctions.js",
   "types": "lib/activationfunctions.d.ts",
+  "files": ["/lib"],
   "scripts": {
     "test": "jest --config jestconfig.json",
     "test:cov": "jest --config jestconfig.json --coverage",
@@ -30,8 +31,5 @@
     "prettier": "^2.8.8",
     "ts-jest": "^29.1.0",
     "typescript": "^5.0.4"
-  },
-  "directories": {
-    "lib": "lib"
   }
 }

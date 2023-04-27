@@ -1,6 +1,5 @@
 //MultiLayered NeuralNetwork Class with a Matrix class for calculation.
-import { Activation_Function, Sigmoid } from "@ai-mer/activationfunctions"
-
+import {Activation_Function} from "@ai-mer/activationfunctions"
 
 // class Neuron {
 

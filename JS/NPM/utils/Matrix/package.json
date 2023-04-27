@@ -4,6 +4,7 @@
   "description": "",
   "main": "lib/matrix.js",
   "types": "lib/matrix.d.ts",
+  "files": ["/lib"],
   "scripts": {
     "test": "jest --config jestconfig.json",
     "test:cov": "jest --config jestconfig.json --coverage",
